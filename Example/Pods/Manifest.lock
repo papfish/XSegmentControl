@@ -1,0 +1,16 @@
+PODS:
+  - XSegmentControl (0.1.0)
+
+DEPENDENCIES:
+  - XSegmentControl (from `../`)
+
+EXTERNAL SOURCES:
+  XSegmentControl:
+    :path: ../
+
+SPEC CHECKSUMS:
+  XSegmentControl: 13e0a32325d8b933a382466ac4e2f0f65bc96863
+
+PODFILE CHECKSUM: c2240f56588974de0d323f852dd7295de7c516ad
+
+COCOAPODS: 1.4.0

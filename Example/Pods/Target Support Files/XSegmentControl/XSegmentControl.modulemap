@@ -1,0 +1,6 @@
+framework module XSegmentControl {
+  umbrella header "XSegmentControl-umbrella.h"
+
+  export *
+  module * { export * }
+}

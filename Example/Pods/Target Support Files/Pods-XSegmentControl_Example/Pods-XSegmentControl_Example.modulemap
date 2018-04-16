@@ -1,0 +1,6 @@
+framework module Pods_XSegmentControl_Example {
+  umbrella header "Pods-XSegmentControl_Example-umbrella.h"
+
+  export *
+  module * { export * }
+}
