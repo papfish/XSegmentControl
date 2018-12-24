@@ -24,13 +24,13 @@ pod 'XSegmentControl'
 
 ```
 // 1. create
-_segControl = [[XSegmentControl alloc] initWithFrame:CGRectMake(0, 0, 375, 44)];
+_segControl = [[XSegmentControl alloc] initWithFrame:CGRectMake(0, 100, 375, 44)];
 _segControl.delegate = self;
-_segControl.backgroundColor = [UIColor whiteColor];
 _segControl.separatorColor = [UIColor clearColor];
+_segControl.selectedColor = [UIColor orangeColor];
+_segControl.unselectedColor = [UIColor grayColor];
 [_segControl setItemTitles:@[@"hello", @"world"]];
 [self.view addSubview:_segControl];
-
 ......
 
 // 2. delegate

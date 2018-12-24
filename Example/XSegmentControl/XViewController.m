@@ -7,8 +7,11 @@
 //
 
 #import "XViewController.h"
+#import <XSegmentControl/XSegmentControl.h>
 
-@interface XViewController ()
+@interface XViewController ()<XSegmentControlDelegate>
+
+@property (nonatomic, strong) XSegmentControl *segControl;
 
 @end
 
@@ -18,6 +21,26 @@
 {
     [super viewDidLoad];
 	// Do any additional setup after loading the view, typically from a nib.
+    
+    _segControl = [[XSegmentControl alloc] initWithFrame:CGRectMake(0, 100, 375, 44)];
+    _segControl.delegate = self;
+    _segControl.separatorColor = [UIColor clearColor];
+    _segControl.selectedColor = [UIColor orangeColor];
+    _segControl.unselectedColor = [UIColor grayColor];
+    [_segControl setItemTitles:@[@"hello", @"world"]];
+    [self.view addSubview:_segControl];
+}
+
+#pragma mark - XSegmentControlDelegate
+- (BOOL)segmentControlWillSelectItemAtIndex:(NSInteger)index
+{
+    NSLog(@"segmentControlWillSelectItemAtIndex:%ld", index);
+    return YES;
+}
+
+- (void)segmentControlDidSelectItemAtIndex:(NSInteger)index
+{
+    NSLog(@"segmentControlDidSelectItemAtIndex:%ld", index);
 }
 
 - (void)didReceiveMemoryWarning

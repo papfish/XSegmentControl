@@ -8,15 +8,19 @@
 
 #import "XSegmentControl.h"
 
-#define XSegmentControlBtnTag 10000
+#define XSegmentControlButtonTag 80000
+#define XSegmentControlButtonSeperatorTag 90000
 
 @interface XSegmentControl()
 
 // Save the item of the array.
-@property (nonatomic, strong) NSMutableArray *items;
+@property (nonatomic, strong) NSMutableArray<UIButton *> *items;
 
 // Indicator at the bottom of the line.
 @property (nonatomic, strong) UIView *indicatorView;
+
+// The separator line at the bottom.
+@property (nonatomic, strong) UIView *bottomSeparatorLine;
 
 @end
 
@@ -43,19 +47,56 @@
     return self;
 }
 
-#pragma mark - Init Data
+#pragma mark - Init
 - (void)customInitData
 {
     _items = [NSMutableArray array];
 }
 
-#pragma mark - Init UI
 - (void)customInitUI
 {
     self.backgroundColor = [UIColor whiteColor];
     self.selectedColor = [UIColor redColor];
     self.unselectedColor = [UIColor grayColor];
     self.separatorColor = [UIColor lightGrayColor];
+}
+
+#pragma mark - UI Setting
+- (void)setSeparatorColor:(UIColor *)separatorColor {
+    _separatorColor = separatorColor;
+    
+    // update color
+    for (UIButton *item in _items) {
+        UIView *vSeparatorLine = [item viewWithTag:XSegmentControlButtonSeperatorTag];
+        if (vSeparatorLine) {
+            vSeparatorLine.backgroundColor = _separatorColor;
+        }
+    }
+    if (_bottomSeparatorLine) {
+        _bottomSeparatorLine.backgroundColor = _separatorColor;
+    }
+}
+
+- (void)setSelectedColor:(UIColor *)selectedColor {
+    _selectedColor = selectedColor;
+    
+    // update color
+    for (UIButton *item in _items) {
+        [item setTitleColor:_selectedColor forState:UIControlStateSelected];
+        [item setTitleColor:_selectedColor forState:UIControlStateHighlighted];
+    }
+    if (_indicatorView) {
+        _indicatorView.backgroundColor = _selectedColor;
+    }
+}
+
+- (void)setUnselectedColor:(UIColor *)unselectedColor {
+    _unselectedColor = unselectedColor;
+    
+    // update color
+    for (UIButton *item in _items) {
+        [item setTitleColor:_unselectedColor forState:UIControlStateNormal];
+    }
 }
 
 // Set item titles array
@@ -93,7 +134,7 @@
             [itemBtn setTitleColor:self.selectedColor forState:UIControlStateHighlighted];
             [itemBtn.titleLabel setFont:[UIFont systemFontOfSize:15]];
             [itemBtn addTarget:self action:@selector(segmentControlItemClick:) forControlEvents:UIControlEventTouchUpInside];
-            [itemBtn setTag:XSegmentControlBtnTag + i];
+            [itemBtn setTag:XSegmentControlButtonTag + i];
             [_items addObject:itemBtn];
             
             // default selected button
@@ -110,6 +151,7 @@
             if (i != 0) {
                 UIView *vLine = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 1, itemH)];
                 vLine.backgroundColor = self.separatorColor;
+                vLine.tag = XSegmentControlButtonSeperatorTag;
                 [itemBtn addSubview:vLine];
             }
         }
@@ -124,10 +166,10 @@
         _indicatorView.backgroundColor = self.selectedColor;
         [self addSubview:_indicatorView];
         
-        // add bottom separartor line
-        UIView *bottomSeparatorLine = [[UIView alloc] initWithFrame:CGRectMake(0, self.frame.size.height - 1, self.frame.size.width, 1)];
-        bottomSeparatorLine.backgroundColor = self.separatorColor;
-        [self addSubview:bottomSeparatorLine];
+        // add bottom separator line
+        _bottomSeparatorLine = [[UIView alloc] initWithFrame:CGRectMake(0, self.frame.size.height - 1, self.frame.size.width, 1)];
+        _bottomSeparatorLine.backgroundColor = self.separatorColor;
+        [self addSubview:_bottomSeparatorLine];
     }
 }
 
@@ -154,7 +196,7 @@
     }
     
     // selected index
-    NSInteger index = sender.tag - XSegmentControlBtnTag;
+    NSInteger index = sender.tag - XSegmentControlButtonTag;
     
     // will selected
     if (_delegate && [_delegate respondsToSelector:@selector(segmentControlWillSelectItemAtIndex:)]) {
@@ -167,7 +209,7 @@
     // last selected index
     for (UIButton *btn in _items) {
         if (btn.selected) {
-            _lastSelectedIndex = btn.tag - XSegmentControlBtnTag;
+            _lastSelectedIndex = btn.tag - XSegmentControlButtonTag;
             break;
         }
     }
