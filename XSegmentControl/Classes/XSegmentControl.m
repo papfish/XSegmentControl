@@ -59,6 +59,7 @@
     self.selectedColor = [UIColor redColor];
     self.unselectedColor = [UIColor grayColor];
     self.separatorColor = [UIColor lightGrayColor];
+    self.titleFont = [UIFont systemFontOfSize:15];
 }
 
 #pragma mark - UI Setting
@@ -66,10 +67,12 @@
     _separatorColor = separatorColor;
     
     // update color
-    for (UIButton *item in _items) {
-        UIView *vSeparatorLine = [item viewWithTag:XSegmentControlButtonSeperatorTag];
-        if (vSeparatorLine) {
-            vSeparatorLine.backgroundColor = _separatorColor;
+    if (_separatorColor) {
+        for (UIButton *item in _items) {
+            UIView *vSeparatorLine = [item viewWithTag:XSegmentControlButtonSeperatorTag];
+            if (vSeparatorLine) {
+                vSeparatorLine.backgroundColor = _separatorColor;
+            }
         }
     }
     if (_bottomSeparatorLine) {
@@ -81,9 +84,11 @@
     _selectedColor = selectedColor;
     
     // update color
-    for (UIButton *item in _items) {
-        [item setTitleColor:_selectedColor forState:UIControlStateSelected];
-        [item setTitleColor:_selectedColor forState:UIControlStateHighlighted];
+    if (_selectedColor) {
+        for (UIButton *item in _items) {
+            [item setTitleColor:_selectedColor forState:UIControlStateSelected];
+            [item setTitleColor:_selectedColor forState:UIControlStateHighlighted];
+        }
     }
     if (_indicatorView) {
         _indicatorView.backgroundColor = _selectedColor;
@@ -93,9 +98,22 @@
 - (void)setUnselectedColor:(UIColor *)unselectedColor {
     _unselectedColor = unselectedColor;
     
-    // update color
-    for (UIButton *item in _items) {
-        [item setTitleColor:_unselectedColor forState:UIControlStateNormal];
+    if (_unselectedColor) {
+        // update color
+        for (UIButton *item in _items) {
+            [item setTitleColor:_unselectedColor forState:UIControlStateNormal];
+        }
+    }
+}
+
+- (void)setTitleFont:(UIFont *)titleFont {
+    _titleFont = titleFont;
+    
+    // update font
+    if (_titleFont) {
+        for (UIButton *item in _items) {
+            [item.titleLabel setFont:_titleFont];
+        }
     }
 }
 
@@ -132,7 +150,7 @@
             [itemBtn setTitleColor:self.unselectedColor forState:UIControlStateNormal];
             [itemBtn setTitleColor:self.selectedColor forState:UIControlStateSelected];
             [itemBtn setTitleColor:self.selectedColor forState:UIControlStateHighlighted];
-            [itemBtn.titleLabel setFont:[UIFont systemFontOfSize:15]];
+            [itemBtn.titleLabel setFont:self.titleFont];
             [itemBtn addTarget:self action:@selector(segmentControlItemClick:) forControlEvents:UIControlEventTouchUpInside];
             [itemBtn setTag:XSegmentControlButtonTag + i];
             [_items addObject:itemBtn];

@@ -33,6 +33,9 @@
 // The color of the unselected status.
 @property (nonatomic, strong) UIColor *unselectedColor;
 
+// The title font of the selected & unselected status. Default is `[UIFont systemFontOfSize:15]`.
+@property (nonatomic, strong) UIFont *titleFont;
+
 // The item title of the array, can only be NSStrings.
 @property (nonatomic, strong) NSArray *itemTitles;
 

@@ -27,6 +27,7 @@
     _segControl.separatorColor = [UIColor clearColor];
     _segControl.selectedColor = [UIColor orangeColor];
     _segControl.unselectedColor = [UIColor grayColor];
+    _segControl.titleFont = [UIFont boldSystemFontOfSize:20];
     [_segControl setItemTitles:@[@"hello", @"world"]];
     [self.view addSubview:_segControl];
 }
