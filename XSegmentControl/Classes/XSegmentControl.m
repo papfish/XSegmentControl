@@ -16,6 +16,9 @@
 // Save the item of the array.
 @property (nonatomic, strong) NSMutableArray<UIButton *> *items;
 
+// The scrollable background view.
+@property (nonatomic, strong) UIScrollView *scrollView;
+
 // Indicator at the bottom of the line.
 @property (nonatomic, strong) UIView *indicatorView;
 
@@ -127,68 +130,81 @@
 
 - (void)setupItems
 {
-    if (_itemTitles.count > 0) {
-        
-        // items array remove all object
-        [_items removeAllObjects];
-        
-        NSInteger count = _itemTitles.count;
-        
-        // item width
-        CGFloat itemW = self.bounds.size.width/count;
-        // item height
-        CGFloat itemH = self.bounds.size.height;
-        
-        for (NSInteger i = 0; i < count; i ++) {
-            NSString *title = [_itemTitles objectAtIndex:i];
-            
-            // item button
-            UIButton *itemBtn = [UIButton buttonWithType:UIButtonTypeCustom];
-            [self addSubview:itemBtn];
-            itemBtn.frame = CGRectMake(itemW * i, 0, itemW, itemH);
-            [itemBtn setTitle:title forState:UIControlStateNormal];
-            [itemBtn setTitleColor:self.unselectedColor forState:UIControlStateNormal];
-            [itemBtn setTitleColor:self.selectedColor forState:UIControlStateSelected];
-            [itemBtn setTitleColor:self.selectedColor forState:UIControlStateHighlighted];
-            [itemBtn.titleLabel setFont:self.titleFont];
-            [itemBtn addTarget:self action:@selector(segmentControlItemClick:) forControlEvents:UIControlEventTouchUpInside];
-            [itemBtn setTag:XSegmentControlButtonTag + i];
-            [_items addObject:itemBtn];
-            
-            // default selected button
-            if (i == 0) {
-                itemBtn.selected = YES;
-            }else {
-                itemBtn.selected = NO;
-            }
-            // default selected index
-            _selectedIndex = 0;
-            _lastSelectedIndex = 0;
-            
-            // add vertical separator line
-            if (i != 0) {
-                UIView *vLine = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 1, itemH)];
-                vLine.backgroundColor = self.separatorColor;
-                vLine.tag = XSegmentControlButtonSeperatorTag;
-                [itemBtn addSubview:vLine];
-            }
-        }
-        
-        // indicator view
-        CGFloat indicatorW = itemW/2;
-        CGFloat indicatorH = 3;
-        CGFloat indicatorX = (itemW - indicatorW)/2;
-        CGFloat indicatorY = itemH - indicatorH;
-        
-        _indicatorView = [[UIView alloc] initWithFrame:CGRectMake(indicatorX , indicatorY, indicatorW, indicatorH)];
-        _indicatorView.backgroundColor = self.selectedColor;
-        [self addSubview:_indicatorView];
-        
-        // add bottom separator line
-        _bottomSeparatorLine = [[UIView alloc] initWithFrame:CGRectMake(0, self.frame.size.height - 1, self.frame.size.width, 1)];
-        _bottomSeparatorLine.backgroundColor = self.separatorColor;
-        [self addSubview:_bottomSeparatorLine];
+    if (!_itemTitles || _itemTitles.count == 0) return;
+    
+    // items array remove all object
+    [_items removeAllObjects];
+    
+    // scrollview
+    _scrollView = [[UIScrollView alloc] initWithFrame:self.bounds];
+    _scrollView.showsHorizontalScrollIndicator = NO;
+    _scrollView.showsVerticalScrollIndicator = NO;
+    [self addSubview:_scrollView];
+    
+    NSInteger count = _itemTitles.count;
+    
+    // item width
+    CGFloat itemW = self.bounds.size.width/count;
+    // item height
+    CGFloat itemH = self.bounds.size.height;
+    
+    if (itemW < 100) {
+        itemW = 100;
     }
+    
+    for (NSInteger i = 0; i < count; i ++) {
+        NSString *title = [_itemTitles objectAtIndex:i];
+        
+        // item button
+        UIButton *itemBtn = [UIButton buttonWithType:UIButtonTypeCustom];
+        [_scrollView addSubview:itemBtn];
+        itemBtn.frame = CGRectMake(itemW * i, 0, itemW, itemH);
+        [itemBtn setTitle:title forState:UIControlStateNormal];
+        [itemBtn setTitleColor:self.unselectedColor forState:UIControlStateNormal];
+        [itemBtn setTitleColor:self.selectedColor forState:UIControlStateSelected];
+        [itemBtn setTitleColor:self.selectedColor forState:UIControlStateHighlighted];
+        [itemBtn.titleLabel setFont:self.titleFont];
+        [itemBtn addTarget:self action:@selector(segmentControlItemClick:) forControlEvents:UIControlEventTouchUpInside];
+        [itemBtn setTag:XSegmentControlButtonTag + i];
+        [_items addObject:itemBtn];
+        
+        // default selected button
+        if (i == 0) {
+            itemBtn.selected = YES;
+        }else {
+            itemBtn.selected = NO;
+        }
+        // default selected index
+        _selectedIndex = 0;
+        _lastSelectedIndex = 0;
+        
+        // add vertical separator line
+        if (i != 0) {
+            UIView *vLine = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 1, itemH)];
+            vLine.backgroundColor = self.separatorColor;
+            vLine.tag = XSegmentControlButtonSeperatorTag;
+            [itemBtn addSubview:vLine];
+        }
+    }
+    
+    // scroll view content size
+    UIButton *lastItemBtn = [_items lastObject];
+    [_scrollView setContentSize:CGSizeMake(CGRectGetMaxX(lastItemBtn.frame), itemH)];
+    
+    // indicator view
+    CGFloat indicatorW = itemW/2;
+    CGFloat indicatorH = 3;
+    CGFloat indicatorX = (itemW - indicatorW)/2;
+    CGFloat indicatorY = itemH - indicatorH;
+    
+    _indicatorView = [[UIView alloc] initWithFrame:CGRectMake(indicatorX , indicatorY, indicatorW, indicatorH)];
+    _indicatorView.backgroundColor = self.selectedColor;
+    [_scrollView addSubview:_indicatorView];
+    
+    // add bottom separator line
+    _bottomSeparatorLine = [[UIView alloc] initWithFrame:CGRectMake(0, self.frame.size.height - 1, self.frame.size.width, 1)];
+    _bottomSeparatorLine.backgroundColor = self.separatorColor;
+    [self addSubview:_bottomSeparatorLine];
 }
 
 #pragma mark - item click event

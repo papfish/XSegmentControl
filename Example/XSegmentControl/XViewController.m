@@ -22,13 +22,13 @@
     [super viewDidLoad];
 	// Do any additional setup after loading the view, typically from a nib.
     
-    _segControl = [[XSegmentControl alloc] initWithFrame:CGRectMake(0, 100, 375, 44)];
+    _segControl = [[XSegmentControl alloc] initWithFrame:CGRectMake(0, 100, [UIScreen mainScreen].bounds.size.width, 44)];
     _segControl.delegate = self;
     _segControl.separatorColor = [UIColor clearColor];
     _segControl.selectedColor = [UIColor orangeColor];
     _segControl.unselectedColor = [UIColor grayColor];
-    _segControl.titleFont = [UIFont boldSystemFontOfSize:20];
-    [_segControl setItemTitles:@[@"hello", @"world"]];
+    _segControl.titleFont = [UIFont boldSystemFontOfSize:12];
+    [_segControl setItemTitles:@[@"January", @"February", @"March", @"April", @"May", @"June", @"July", @"August", @"September", @"October", @"November", @"December"]];
     [self.view addSubview:_segControl];
 }
 
