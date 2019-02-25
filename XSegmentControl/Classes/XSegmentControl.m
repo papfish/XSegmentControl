@@ -8,13 +8,26 @@
 
 #import "XSegmentControl.h"
 
-#define XSegmentControlButtonTag 80000
-#define XSegmentControlButtonSeperatorTag 90000
+static NSInteger const XSegmentControlButtonTag = 80000;
+static NSInteger const XSegmentControlButtonSeperatorTag = 90000;
+
+static CGFloat const XSegmentControlEdge = 8.0;
+static CGFloat const XSegmentControlTransformScale = 1.3;
 
 @interface XSegmentControl()
 
+// The item title of the array, can only be NSStrings.
+@property (nonatomic, strong) NSArray<NSString *> *itemTitles;
+
+// The segment style.
+@property (nonatomic, assign) XSegmentWidthStyle widthStyle;
+@property (nonatomic, assign) XSegmentIndicatorStyle indicatorStyle;
+
 // Save the item of the array.
 @property (nonatomic, strong) NSMutableArray<UIButton *> *items;
+
+// The scrollable background view.
+@property (nonatomic, strong) UIScrollView *scrollView;
 
 // Indicator at the bottom of the line.
 @property (nonatomic, strong) UIView *indicatorView;
@@ -27,16 +40,6 @@
 @implementation XSegmentControl
 
 #pragma mark - Init
-- (instancetype)init
-{
-    self = [super init];
-    if (self) {
-        [self customInitData];
-        [self customInitUI];
-    }
-    return self;
-}
-
 - (instancetype)initWithFrame:(CGRect)frame
 {
     self = [super initWithFrame:frame];
@@ -47,7 +50,6 @@
     return self;
 }
 
-#pragma mark - Init
 - (void)customInitData
 {
     _items = [NSMutableArray array];
@@ -74,9 +76,6 @@
                 vSeparatorLine.backgroundColor = _separatorColor;
             }
         }
-    }
-    if (_bottomSeparatorLine) {
-        _bottomSeparatorLine.backgroundColor = _separatorColor;
     }
 }
 
@@ -118,76 +117,107 @@
 }
 
 // Set item titles array
-- (void)setItemTitles:(NSArray *)itemTitles
+- (void)setItemTitles:(NSArray<NSString *> *)itemTitles
 {
+    [self setItemTitles:itemTitles segmentWidthStyle:XSegmentWidthStyle_EqualEach segmentIndicatorStyle:XSegmentIndicatorStyle_Slide];
+}
+
+- (void)setItemTitles:(NSArray<NSString *> *)itemTitles segmentWidthStyle:(XSegmentWidthStyle)widthStyle segmentIndicatorStyle:(XSegmentIndicatorStyle)indicatorStyle {
+    
     _itemTitles = itemTitles;
+    _widthStyle = widthStyle;
+    _indicatorStyle = indicatorStyle;
     
     [self setupItems];
 }
 
 - (void)setupItems
 {
-    if (_itemTitles.count > 0) {
+    if (!_itemTitles || _itemTitles.count == 0) return;
+    
+    // items array remove all object
+    [_items removeAllObjects];
+    
+    // scrollview
+    _scrollView = [[UIScrollView alloc] initWithFrame:self.bounds];
+    _scrollView.showsHorizontalScrollIndicator = NO;
+    _scrollView.showsVerticalScrollIndicator = NO;
+    [self addSubview:_scrollView];
+    
+    NSInteger count = _itemTitles.count;
+    
+    // item width, default
+    CGFloat itemW = self.bounds.size.width/count;
+    // item height
+    CGFloat itemH = self.bounds.size.height;
+    
+    // total width
+    CGFloat totalWidth = 0;
+    
+    for (NSInteger i = 0; i < count; i ++) {
+        NSString *title = [_itemTitles objectAtIndex:i];
         
-        // items array remove all object
-        [_items removeAllObjects];
-        
-        NSInteger count = _itemTitles.count;
-        
-        // item width
-        CGFloat itemW = self.bounds.size.width/count;
-        // item height
-        CGFloat itemH = self.bounds.size.height;
-        
-        for (NSInteger i = 0; i < count; i ++) {
-            NSString *title = [_itemTitles objectAtIndex:i];
-            
-            // item button
-            UIButton *itemBtn = [UIButton buttonWithType:UIButtonTypeCustom];
-            [self addSubview:itemBtn];
-            itemBtn.frame = CGRectMake(itemW * i, 0, itemW, itemH);
-            [itemBtn setTitle:title forState:UIControlStateNormal];
-            [itemBtn setTitleColor:self.unselectedColor forState:UIControlStateNormal];
-            [itemBtn setTitleColor:self.selectedColor forState:UIControlStateSelected];
-            [itemBtn setTitleColor:self.selectedColor forState:UIControlStateHighlighted];
-            [itemBtn.titleLabel setFont:self.titleFont];
-            [itemBtn addTarget:self action:@selector(segmentControlItemClick:) forControlEvents:UIControlEventTouchUpInside];
-            [itemBtn setTag:XSegmentControlButtonTag + i];
-            [_items addObject:itemBtn];
-            
-            // default selected button
-            if (i == 0) {
-                itemBtn.selected = YES;
-            }else {
-                itemBtn.selected = NO;
-            }
-            // default selected index
-            _selectedIndex = 0;
-            _lastSelectedIndex = 0;
-            
-            // add vertical separator line
-            if (i != 0) {
-                UIView *vLine = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 1, itemH)];
-                vLine.backgroundColor = self.separatorColor;
-                vLine.tag = XSegmentControlButtonSeperatorTag;
-                [itemBtn addSubview:vLine];
-            }
+        // The width of the item is equal to text.
+        if (_widthStyle == XSegmentWidthStyle_EqualText) {
+            itemW = [self widthOfText:title textFont:self.titleFont textHeight:itemH];
+            itemW += (XSegmentControlEdge * 2);
         }
         
-        // indicator view
-        CGFloat indicatorW = itemW/2;
+        // item button
+        UIButton *itemBtn = [UIButton buttonWithType:UIButtonTypeCustom];
+        [_scrollView addSubview:itemBtn];
+        itemBtn.frame = CGRectMake(totalWidth, 0, itemW, itemH);
+        [itemBtn setTitle:title forState:UIControlStateNormal];
+        [itemBtn setTitleColor:self.unselectedColor forState:UIControlStateNormal];
+        [itemBtn setTitleColor:self.selectedColor forState:UIControlStateSelected];
+        [itemBtn setTitleColor:self.selectedColor forState:UIControlStateHighlighted];
+        [itemBtn.titleLabel setFont:self.titleFont];
+        [itemBtn addTarget:self action:@selector(segmentControlItemClick:) forControlEvents:UIControlEventTouchUpInside];
+        [itemBtn setTag:XSegmentControlButtonTag + i];
+        [_items addObject:itemBtn];
+        
+        // default selected button
+        itemBtn.selected = (i == 0);
+        
+        // default selected index
+        _selectedIndex = 0;
+        _lastSelectedIndex = 0;
+        
+        // add vertical separator line
+        if (i != 0) {
+            UIView *vLine = [[UIView alloc] initWithFrame:CGRectMake(0, XSegmentControlEdge, 1, itemH - (XSegmentControlEdge * 2))];
+            vLine.backgroundColor = self.separatorColor;
+            vLine.tag = XSegmentControlButtonSeperatorTag;
+            [itemBtn addSubview:vLine];
+        }
+        
+        // total width
+        totalWidth += itemW;
+    }
+    
+    // scroll view content size
+    [_scrollView setContentSize:CGSizeMake(totalWidth, itemH)];
+    
+    // zoom style
+    UIButton *firstItemBtn = [_items firstObject];
+    if (_indicatorStyle == XSegmentIndicatorStyle_Zoom) {
+        firstItemBtn.transform = CGAffineTransformMakeScale(XSegmentControlTransformScale, XSegmentControlTransformScale);
+    }else {
+        // indicator view, default frame
+        CGFloat firstItemWidth = CGRectGetWidth(firstItemBtn.frame);
+        CGFloat indicatorW = firstItemWidth/2;
         CGFloat indicatorH = 3;
-        CGFloat indicatorX = (itemW - indicatorW)/2;
+        CGFloat indicatorX = (firstItemWidth - indicatorW)/2;
         CGFloat indicatorY = itemH - indicatorH;
+        
+        if (_widthStyle == XSegmentWidthStyle_EqualText) {
+            indicatorW = firstItemWidth - (XSegmentControlEdge * 2);
+            indicatorX = XSegmentControlEdge;
+        }
         
         _indicatorView = [[UIView alloc] initWithFrame:CGRectMake(indicatorX , indicatorY, indicatorW, indicatorH)];
         _indicatorView.backgroundColor = self.selectedColor;
-        [self addSubview:_indicatorView];
-        
-        // add bottom separator line
-        _bottomSeparatorLine = [[UIView alloc] initWithFrame:CGRectMake(0, self.frame.size.height - 1, self.frame.size.width, 1)];
-        _bottomSeparatorLine.backgroundColor = self.separatorColor;
-        [self addSubview:_bottomSeparatorLine];
+        [_scrollView addSubview:_indicatorView];
     }
 }
 
@@ -206,6 +236,7 @@
     }
 }
 
+#pragma mark - XSegmentControlDelegate
 // Item will be selected
 - (void)segmentControlItemWillSelect:(UIButton *)sender
 {
@@ -217,8 +248,8 @@
     NSInteger index = sender.tag - XSegmentControlButtonTag;
     
     // will selected
-    if (_delegate && [_delegate respondsToSelector:@selector(segmentControlWillSelectItemAtIndex:)]) {
-        BOOL shouldSelected = [_delegate segmentControlWillSelectItemAtIndex:index];
+    if (_delegate && [_delegate respondsToSelector:@selector(segmentControl:willSelectItemAtIndex:)]) {
+        BOOL shouldSelected = [_delegate segmentControl:self willSelectItemAtIndex:index];
         if (!shouldSelected) {
             return;
         }
@@ -237,8 +268,8 @@
     [self segmentControlItemDidSelect:sender];
     
     // did selected
-    if (_delegate && [_delegate respondsToSelector:@selector(segmentControlDidSelectItemAtIndex:)]) {
-        [_delegate segmentControlDidSelectItemAtIndex:index];
+    if (_delegate && [_delegate respondsToSelector:@selector(segmentControl:didSelectItemAtIndex:)]) {
+        [_delegate segmentControl:self didSelectItemAtIndex:index];
     }
 }
 
@@ -251,18 +282,54 @@
     }
     sender.selected = YES;
     
-    // position animation
-    CGFloat dx = sender.center.x - _indicatorView.center.x;
+    // scroll view offset
+    if (_widthStyle == XSegmentWidthStyle_EqualText) {
+        CGFloat offsetX = CGRectGetMidX(sender.frame) - CGRectGetWidth(self.frame)/2;
+        if (offsetX < 0) {
+            offsetX = 0;
+        }
+        if (offsetX > self.scrollView.contentSize.width - CGRectGetWidth(self.frame)) {
+            offsetX = self.scrollView.contentSize.width - CGRectGetWidth(self.frame);
+        }
+        [self.scrollView setContentOffset:CGPointMake(offsetX, 0) animated:YES];
+    }
     
-    CABasicAnimation *positionAnimation = [CABasicAnimation animation];
-    positionAnimation.keyPath = @"position.x";
-    positionAnimation.fromValue = @(_indicatorView.layer.position.x);
-    positionAnimation.toValue = @(_indicatorView.layer.position.x + dx);
-    positionAnimation.duration = 0.2;
-    [_indicatorView.layer addAnimation:positionAnimation forKey:@"basic"];
-    
-    // keep frame
-    _indicatorView.layer.position = CGPointMake(_indicatorView.layer.position.x + dx, _indicatorView.layer.position.y);
+    // transform
+    if (_indicatorStyle == XSegmentIndicatorStyle_Zoom) {
+        UIButton *lastItemBtn = [_items objectAtIndex:_lastSelectedIndex];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [UIView animateWithDuration:0.2 animations:^{
+                lastItemBtn.transform = CGAffineTransformIdentity;
+                sender.transform = CGAffineTransformMakeScale(XSegmentControlTransformScale, XSegmentControlTransformScale);
+            }];
+        });
+    }else {
+        __weak typeof(self) wSelf = self;
+        // position animation
+        CGPoint centerPoint = _indicatorView.center;
+        centerPoint.x = sender.center.x;
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [UIView animateWithDuration:0.2 animations:^{
+                wSelf.indicatorView.center = centerPoint;
+            }];
+        });
+        
+        if (_widthStyle == XSegmentWidthStyle_EqualText) {
+            // width animation
+            CGRect bounds = _indicatorView.bounds;
+            bounds.size.width = CGRectGetWidth(sender.frame) - (XSegmentControlEdge * 2);
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [UIView animateWithDuration:0.2 animations:^{
+                    wSelf.indicatorView.bounds = bounds;
+                }];
+            });
+        }
+    }
+}
+
+#pragma mark - Common tool
+- (CGFloat)widthOfText:(NSString *)text textFont:(UIFont *)textFont textHeight:(CGFloat)textHeight {
+    return [text boundingRectWithSize:CGSizeMake(MAXFLOAT, textHeight) options:NSStringDrawingUsesLineFragmentOrigin attributes:@{NSFontAttributeName: textFont} context:nil].size.width;
 }
 
 @end

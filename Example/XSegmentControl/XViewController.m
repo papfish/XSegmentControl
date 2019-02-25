@@ -12,6 +12,8 @@
 @interface XViewController ()<XSegmentControlDelegate>
 
 @property (nonatomic, strong) XSegmentControl *segControl;
+@property (nonatomic, strong) XSegmentControl *segControl2;
+@property (nonatomic, strong) XSegmentControl *segControl3;
 
 @end
 
@@ -22,26 +24,44 @@
     [super viewDidLoad];
 	// Do any additional setup after loading the view, typically from a nib.
     
-    _segControl = [[XSegmentControl alloc] initWithFrame:CGRectMake(0, 100, 375, 44)];
+    _segControl = [[XSegmentControl alloc] initWithFrame:CGRectMake(0, 100, [UIScreen mainScreen].bounds.size.width, 44)];
     _segControl.delegate = self;
     _segControl.separatorColor = [UIColor clearColor];
     _segControl.selectedColor = [UIColor orangeColor];
     _segControl.unselectedColor = [UIColor grayColor];
-    _segControl.titleFont = [UIFont boldSystemFontOfSize:20];
-    [_segControl setItemTitles:@[@"hello", @"world"]];
+    _segControl.titleFont = [UIFont boldSystemFontOfSize:12];
+    [_segControl setItemTitles:@[@"January", @"February", @"March", @"April", @"May"]];
     [self.view addSubview:_segControl];
+    
+    _segControl2 = [[XSegmentControl alloc] initWithFrame:CGRectMake(0, 200, [UIScreen mainScreen].bounds.size.width, 44)];
+    _segControl2.delegate = self;
+    _segControl2.separatorColor = [UIColor clearColor];
+    _segControl2.selectedColor = [UIColor orangeColor];
+    _segControl2.unselectedColor = [UIColor grayColor];
+    _segControl2.titleFont = [UIFont boldSystemFontOfSize:12];
+    [_segControl2 setItemTitles:@[@"January", @"February", @"March", @"April", @"May", @"June", @"July", @"August", @"September", @"October", @"November", @"December"] segmentWidthStyle:XSegmentWidthStyle_EqualText segmentIndicatorStyle:XSegmentIndicatorStyle_Slide];
+    [self.view addSubview:_segControl2];
+    
+    _segControl3 = [[XSegmentControl alloc] initWithFrame:CGRectMake(0, 300, [UIScreen mainScreen].bounds.size.width, 44)];
+    _segControl3.delegate = self;
+    _segControl3.separatorColor = [UIColor clearColor];
+    _segControl3.selectedColor = [UIColor orangeColor];
+    _segControl3.unselectedColor = [UIColor grayColor];
+    _segControl3.titleFont = [UIFont boldSystemFontOfSize:12];
+    [_segControl3 setItemTitles:@[@"January", @"February", @"March", @"April", @"May", @"June", @"July", @"August", @"September", @"October", @"November", @"December"] segmentWidthStyle:XSegmentWidthStyle_EqualText segmentIndicatorStyle:XSegmentIndicatorStyle_Zoom];
+    [self.view addSubview:_segControl3];
 }
 
 #pragma mark - XSegmentControlDelegate
-- (BOOL)segmentControlWillSelectItemAtIndex:(NSInteger)index
+- (BOOL)segmentControl:(XSegmentControl *)segmentControl willSelectItemAtIndex:(NSInteger)index
 {
-    NSLog(@"segmentControlWillSelectItemAtIndex:%ld", index);
+    NSLog(@"segmentControl:%@ willSelectItemAtIndex:%ld", segmentControl, index);
     return YES;
 }
 
-- (void)segmentControlDidSelectItemAtIndex:(NSInteger)index
+- (void)segmentControl:(XSegmentControl *)segmentControl didSelectItemAtIndex:(NSInteger)index
 {
-    NSLog(@"segmentControlDidSelectItemAtIndex:%ld", index);
+    NSLog(@"segmentControl:%@ didSelectItemAtIndex:%ld", segmentControl, index);
 }
 
 - (void)didReceiveMemoryWarning
