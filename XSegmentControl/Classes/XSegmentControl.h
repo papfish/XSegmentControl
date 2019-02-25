@@ -8,16 +8,29 @@
 
 #import <UIKit/UIKit.h>
 
+@class XSegmentControl;
 @protocol XSegmentControlDelegate <NSObject>
 
 @optional
 // The item will be selected.
-- (BOOL)segmentControlWillSelectItemAtIndex:(NSInteger)index;
+- (BOOL)segmentControl:(XSegmentControl *)segmentControl willSelectItemAtIndex:(NSInteger)index;
 
 // The item did selected.
-- (void)segmentControlDidSelectItemAtIndex:(NSInteger)index;
+- (void)segmentControl:(XSegmentControl *)segmentControl didSelectItemAtIndex:(NSInteger)index;
 
 @end
+
+// Default, each item width is equal.
+typedef NS_ENUM(NSUInteger, XSegmentWidthStyle) {
+    XSegmentWidthStyle_EqualEach,   // Default.
+    XSegmentWidthStyle_EqualText    // Item width is equal to text.
+};
+
+// Default, a slide view on the bottom.
+typedef NS_ENUM(NSUInteger, XSegmentIndicatorStyle) {
+    XSegmentIndicatorStyle_Slide,   // Default
+    XSegmentIndicatorStyle_Zoom
+};
 
 @interface XSegmentControl : UIView
 
@@ -36,14 +49,22 @@
 // The title font of the selected & unselected status. Default is `[UIFont systemFontOfSize:15]`.
 @property (nonatomic, strong) UIFont *titleFont;
 
-// The item title of the array, can only be NSStrings.
-@property (nonatomic, strong) NSArray *itemTitles;
-
 // The selected index of the segment control, readonly.
 @property (nonatomic, assign, readonly) NSInteger selectedIndex;
 
 // The last selected index of the segment control, readonly.
 @property (nonatomic, assign, readonly) NSInteger lastSelectedIndex;
+
+// Init with Frame
+- (instancetype)init NS_UNAVAILABLE;
+- (instancetype)initWithCoder:(NSCoder *)aDecoder NS_UNAVAILABLE;
+- (instancetype)initWithFrame:(CGRect)frame NS_DESIGNATED_INITIALIZER;
+
+// The item title of the array, can only be NSStrings.
+- (void)setItemTitles:(NSArray<NSString *> *)itemTitles;
+
+// The item title of the array, can only be NSStrings.
+- (void)setItemTitles:(NSArray<NSString *> *)itemTitles segmentWidthStyle:(XSegmentWidthStyle)widthStyle segmentIndicatorStyle:(XSegmentIndicatorStyle)indicatorStyle;
 
 // Set the selected item with index.
 - (void)selectItemWithIndex:(NSInteger)index;
