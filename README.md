@@ -9,7 +9,7 @@
 
 To run the example project, clone the repo, and run `pod install` from the Example directory first.
 
-## Requirements
+![](https://github.com/xuliang2015/XSegmentControl/blob/master/Example/gif/demo.gif)
 
 ## Installation
 
