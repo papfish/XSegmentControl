@@ -36,16 +36,18 @@ _segControl.titleFont = [UIFont boldSystemFontOfSize:20];
 
 // 2. delegate
 #pragma mark - XSegmentControlDelegate
-- (BOOL)segmentControlWillSelectItemAtIndex:(NSInteger)index
-{
-    return YES;
+// The item will be selected.
+- (BOOL)segmentControl:(XSegmentControl *)segmentControl willSelectItemAtIndex:(NSInteger)index {
+	return YES;
 }
 
-- (void)segmentControlDidSelectItemAtIndex:(NSInteger)index
-{
-    
+// The item did selected.
+- (void)segmentControl:(XSegmentControl *)segmentControl didSelectItemAtIndex:(NSInteger)index {
+
 }
 ```
+
+The delegate is optional.
 
 ## Author
 
