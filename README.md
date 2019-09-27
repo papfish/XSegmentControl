@@ -1,6 +1,6 @@
 # XSegmentControl
 
-[![CI Status](http://img.shields.io/travis/xuliang2015/XSegmentControl.svg?style=flat)](https://travis-ci.org/xuliang2015/XSegmentControl)
+[![CI Status](http://img.shields.io/travis/papfish/XSegmentControl.svg?style=flat)](https://travis-ci.org/papfish/XSegmentControl)
 [![Version](https://img.shields.io/cocoapods/v/XSegmentControl.svg?style=flat)](http://cocoapods.org/pods/XSegmentControl)
 [![License](https://img.shields.io/cocoapods/l/XSegmentControl.svg?style=flat)](http://cocoapods.org/pods/XSegmentControl)
 [![Platform](https://img.shields.io/cocoapods/p/XSegmentControl.svg?style=flat)](http://cocoapods.org/pods/XSegmentControl)
@@ -9,7 +9,7 @@
 
 To run the example project, clone the repo, and run `pod install` from the Example directory first.
 
-![](https://github.com/xuliang2015/XSegmentControl/blob/master/Example/gif/demo.gif)
+![](https://github.com/papfish/XSegmentControl/blob/master/Example/gif/demo.gif)
 
 ## Installation
 
@@ -51,7 +51,7 @@ The delegate is optional.
 
 ## Author
 
-xuliang2015, liang.xv@qq.com
+papfish, liang.xv@qq.com
 
 ## License
 
