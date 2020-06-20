@@ -1,5 +1,5 @@
 PODS:
-  - XSegmentControl (0.3.1)
+  - XSegmentControl (0.3.2)
 
 DEPENDENCIES:
   - XSegmentControl (from `../`)
@@ -9,8 +9,8 @@ EXTERNAL SOURCES:
     :path: "../"
 
 SPEC CHECKSUMS:
-  XSegmentControl: f8403d20967c92ade6b8d4082a36e724f25f58ae
+  XSegmentControl: 61ffc2bcf4870c14953cbc840709ea7e1f8404fd
 
 PODFILE CHECKSUM: c2240f56588974de0d323f852dd7295de7c516ad
 
-COCOAPODS: 1.6.1
+COCOAPODS: 1.9.1

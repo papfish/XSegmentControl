@@ -11,9 +11,6 @@
 static NSInteger const XSegmentControlButtonTag = 80000;
 static NSInteger const XSegmentControlButtonSeperatorTag = 90000;
 
-static CGFloat const XSegmentControlEdge = 8.0;
-static CGFloat const XSegmentControlTransformScale = 1.3;
-
 @interface XSegmentControl()
 
 // The item title of the array, can only be NSStrings.
@@ -62,6 +59,8 @@ static CGFloat const XSegmentControlTransformScale = 1.3;
     self.unselectedColor = [UIColor grayColor];
     self.separatorColor = [UIColor lightGrayColor];
     self.titleFont = [UIFont systemFontOfSize:15];
+    self.itemScale = 1.3;
+    self.itemSpace = 8.0;
 }
 
 #pragma mark - UI Setting
@@ -160,7 +159,7 @@ static CGFloat const XSegmentControlTransformScale = 1.3;
         // The width of the item is equal to text.
         if (_widthStyle == XSegmentWidthStyle_EqualText) {
             itemW = [self widthOfText:title textFont:self.titleFont textHeight:itemH];
-            itemW += (XSegmentControlEdge * 2);
+            itemW += (self.itemSpace * 2);
         }
         
         // item button
@@ -185,7 +184,7 @@ static CGFloat const XSegmentControlTransformScale = 1.3;
         
         // add vertical separator line
         if (i != 0) {
-            UIView *vLine = [[UIView alloc] initWithFrame:CGRectMake(0, XSegmentControlEdge, 1, itemH - (XSegmentControlEdge * 2))];
+            UIView *vLine = [[UIView alloc] initWithFrame:CGRectMake(0, self.itemSpace, 1, itemH - (self.itemSpace * 2))];
             vLine.backgroundColor = self.separatorColor;
             vLine.tag = XSegmentControlButtonSeperatorTag;
             [itemBtn addSubview:vLine];
@@ -201,7 +200,7 @@ static CGFloat const XSegmentControlTransformScale = 1.3;
     // zoom style
     UIButton *firstItemBtn = [_items firstObject];
     if (_indicatorStyle == XSegmentIndicatorStyle_Zoom) {
-        firstItemBtn.transform = CGAffineTransformMakeScale(XSegmentControlTransformScale, XSegmentControlTransformScale);
+        firstItemBtn.transform = CGAffineTransformMakeScale(self.itemScale, self.itemScale);
     }else {
         // indicator view, default frame
         CGFloat firstItemWidth = CGRectGetWidth(firstItemBtn.frame);
@@ -211,8 +210,8 @@ static CGFloat const XSegmentControlTransformScale = 1.3;
         CGFloat indicatorY = itemH - indicatorH;
         
         if (_widthStyle == XSegmentWidthStyle_EqualText) {
-            indicatorW = firstItemWidth - (XSegmentControlEdge * 2);
-            indicatorX = XSegmentControlEdge;
+            indicatorW = firstItemWidth - (self.itemSpace * 2);
+            indicatorX = self.itemSpace;
         }
         
         _indicatorView = [[UIView alloc] initWithFrame:CGRectMake(indicatorX , indicatorY, indicatorW, indicatorH)];
@@ -288,7 +287,9 @@ static CGFloat const XSegmentControlTransformScale = 1.3;
         if (offsetX < 0) {
             offsetX = 0;
         }
-        if (offsetX > self.scrollView.contentSize.width - CGRectGetWidth(self.frame)) {
+        if (self.scrollView.contentSize.width <= CGRectGetWidth(self.frame)) {
+            offsetX = 0;
+        }else if (offsetX > self.scrollView.contentSize.width - CGRectGetWidth(self.frame)) {
             offsetX = self.scrollView.contentSize.width - CGRectGetWidth(self.frame);
         }
         [self.scrollView setContentOffset:CGPointMake(offsetX, 0) animated:YES];
@@ -300,7 +301,7 @@ static CGFloat const XSegmentControlTransformScale = 1.3;
         dispatch_async(dispatch_get_main_queue(), ^{
             [UIView animateWithDuration:0.2 animations:^{
                 lastItemBtn.transform = CGAffineTransformIdentity;
-                sender.transform = CGAffineTransformMakeScale(XSegmentControlTransformScale, XSegmentControlTransformScale);
+                sender.transform = CGAffineTransformMakeScale(self.itemScale, self.itemScale);
             }];
         });
     }else {
@@ -317,7 +318,7 @@ static CGFloat const XSegmentControlTransformScale = 1.3;
         if (_widthStyle == XSegmentWidthStyle_EqualText) {
             // width animation
             CGRect bounds = _indicatorView.bounds;
-            bounds.size.width = CGRectGetWidth(sender.frame) - (XSegmentControlEdge * 2);
+            bounds.size.width = CGRectGetWidth(sender.frame) - (self.itemSpace * 2);
             dispatch_async(dispatch_get_main_queue(), ^{
                 [UIView animateWithDuration:0.2 animations:^{
                     wSelf.indicatorView.bounds = bounds;

@@ -49,6 +49,12 @@ typedef NS_ENUM(NSUInteger, XSegmentIndicatorStyle) {
 // The title font of the selected & unselected status. Default is `[UIFont systemFontOfSize:15]`.
 @property (nonatomic, strong) UIFont *titleFont;
 
+// The scale of the selected status. When the width style is equal text. Default is 1.3
+@property (nonatomic, assign) CGFloat itemScale;
+
+// The space between the items. Default is 8.0
+@property (nonatomic, assign) CGFloat itemSpace;
+
 // The selected index of the segment control, readonly.
 @property (nonatomic, assign, readonly) NSInteger selectedIndex;
 
